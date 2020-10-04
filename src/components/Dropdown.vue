@@ -1,12 +1,11 @@
 <template>
   <div class="dropdown" ref="dropdownRef">
     <a
-      href="#"
       class="btn btn-outline-light my-2 dropdown-toggle"
+      href="#"
       @click.prevent="toggleOpen"
+      >{{ buttonText }}</a
     >
-      {{ buttonText }}
-    </a>
     <ul class="dropdown-menu" style="display: block" v-show="isOpen">
       <slot />
     </ul>

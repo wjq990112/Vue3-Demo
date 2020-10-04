@@ -1,18 +1,16 @@
 <template>
   <div class="row">
-    <div class="col-4 mb-4" v-for="column of columnList" :key="column.id">
+    <div class="col-4 mb-4" :key="column.id" v-for="column of columnList">
       <div class="card h-100 shadow-sm">
         <div class="card-body text-center">
           <img
-            :src="column.avatar"
             class="w-25 my-3 border border-light rounded-circle"
             :alt="column.title"
+            :src="column.avatar"
           />
           <h5 class="card-title">{{ column.title }}</h5>
-          <p class="card-text text-left">
-            {{ column.description }}
-          </p>
-          <a href="#" class="btn btn-outline-primary">进入专栏</a>
+          <p class="card-text text-left">{{ column.description }}</p>
+          <a class="btn btn-outline-primary" href="#">进入专栏</a>
         </div>
       </div>
     </div>

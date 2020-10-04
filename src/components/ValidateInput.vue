@@ -1,20 +1,21 @@
 <template>
   <div class="validate-input-container pb-3">
     <input
-      type="text"
       :class="['form-control', { 'is-invalid': inputRef.error }]"
       :value="inputRef.val"
       @blur="validateInput"
       @input="updateValue"
+      v-bind="$attrs"
     />
-    <div v-show="inputRef.error" class="invalid-feedback">
+    <div class="invalid-feedback" v-show="inputRef.error">
       {{ inputRef.message }}
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive } from 'vue';
+import { defineComponent, onMounted, PropType, reactive } from 'vue';
+import { emitter } from '@/components/ValidateForm.vue';
 
 export interface RuleProps {
   type: 'required' | 'email';
@@ -35,6 +36,8 @@ export default defineComponent({
       default: ''
     }
   },
+  emits: { 'update:modelValue': null },
+  inheritAttrs: false,
   setup(props, context) {
     const inputRef = reactive({
       val: props.modalValue,
@@ -47,12 +50,10 @@ export default defineComponent({
           inputRef.message = rule.message;
           switch (rule.type) {
             case 'required': {
-              const passed = inputRef.val.trim() !== '';
-              return passed;
+              return inputRef.val.trim() !== '';
             }
             case 'email': {
-              const passed = emailReg.test(inputRef.val);
-              return passed;
+              return emailReg.test(inputRef.val);
             }
             default: {
               return true;
@@ -60,14 +61,19 @@ export default defineComponent({
           }
         });
         inputRef.error = !allPassed;
+        return allPassed;
       }
+      return true;
     };
-
     const updateValue = (event: KeyboardEvent) => {
       const { value } = event.target as HTMLInputElement;
       inputRef.val = value;
       context.emit('update:modelValue', value);
     };
+
+    onMounted(() => {
+      emitter.emit('form-item-created', validateInput);
+    });
 
     return {
       inputRef,
