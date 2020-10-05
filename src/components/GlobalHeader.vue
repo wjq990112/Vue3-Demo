@@ -1,43 +1,32 @@
 <template>
-  <nav class="navbar navbar-dark bg-primary justify-content-between mb-4 px-4">
-    <a class="navbar-brand" href="#">知乎专栏</a>
-    <ul class="list-inline mb-0" v-if="!user.isLogin">
+  <nav class="navbar-dark bg-primary justify-content-between mb-4 px-4">
+    <div class="w-75 mx-auto navbar">
+    <router-link class="navbar-brand" to="/">者也专栏</router-link>
+    <ul v-if="!user.isLogin" class="list-inline mb-0">
+      <li class="list-inline-item"><router-link to="/login" class="btn btn-outline-light my-2">登陆</router-link></li>
+      <li class="list-inline-item"><router-link to="/signup" class="btn btn-outline-light my-2">注册</router-link></li>
+    </ul>
+    <ul v-else class="list-inline mb-0">
       <li class="list-inline-item">
-        <a class="btn btn-outline-light my-2" href="#">登陆</a>
-      </li>
-      <li class="list-inline-item">
-        <a class="btn btn-outline-light my-2" href="#">注册</a>
+        <dropdown :title="`你好 ${user.nickName}`">
+          <dropdown-item closeAfterClick><router-link to="/create" class="dropdown-item">新建文章</router-link></dropdown-item>
+          <dropdown-item closeAfterClick><router-link :to="`/column/${user.column}`" class="dropdown-item">我的专栏</router-link></dropdown-item>
+          <dropdown-item closeAfterClick><router-link to="/edit" class="dropdown-item">编辑资料</router-link></dropdown-item>
+          <dropdown-item closeAfterClick><a href="#" class="dropdown-item" @click="handleLogout">退出登陆</a></dropdown-item>
+        </dropdown>
       </li>
     </ul>
-    <ul class="list-inline mb-0" v-else>
-      <li class="list-inline-item">
-        <Dropdown :buttonText="`你好&nbsp;${user.name}`">
-          <DropdownItem>
-            <a class="dropdown-item" href="#">新建文章</a>
-          </DropdownItem>
-          <DropdownItem>
-            <a class="dropdown-item" href="#">编辑资料</a>
-          </DropdownItem>
-          <DropdownItem :disabled="true">
-            <a class="dropdown-item" href="#">退出登录</a>
-          </DropdownItem>
-        </Dropdown>
-      </li>
-    </ul>
+    </div>
   </nav>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
-import Dropdown from '@/components/Dropdown.vue';
-import DropdownItem from '@/components/DropdownItem.vue';
-
-export interface UserProps {
-  isLogin: boolean;
-  name?: string;
-  id?: number;
-}
-
+import { defineComponent, PropType } from 'vue'
+import { useRouter } from 'vue-router'
+import Dropdown from './Dropdown.vue'
+import DropdownItem from './DropdownItem.vue'
+import store, { UserProps } from '../store'
+import createMessage from '../components/createMessage'
 export default defineComponent({
   name: 'GlobalHeader',
   components: {
@@ -49,9 +38,19 @@ export default defineComponent({
       type: Object as PropType<UserProps>,
       required: true
     }
+  },
+  setup() {
+    const router = useRouter()
+    const handleLogout = () => {
+      store.commit('logout')
+      createMessage('退出登录成功，2秒后跳转到首页', 'success', 2000)
+      setTimeout(() => {
+        router.push('/')
+      }, 2000)
+    }
+    return {
+      handleLogout
+    }
   }
-});
+})
 </script>
-
-<style>
-</style>

@@ -1,72 +1,58 @@
 <template>
-  <div class="container">
-    <GlobalHeader :user="user" />
-    <ValidateForm @form-submit="onFormSubmit">
-      <ValidateInput
-        type="email"
-        placeholder="请输入电子邮箱地址"
-        :rules="emailRules"
-        v-model="emailVal"
-      />
-      <ValidateInput
-        type="password"
-        placeholder="请输入密码"
-        :rules="passwordRules"
-        v-model="passwordVal"
-      />
-    </ValidateForm>
+  <div class="container-fluid px-0 flex-shrink-0">
+    <global-header :user="currentUser"></global-header>
+    <loader v-if="isLoading"></loader>
+    <router-view></router-view>
   </div>
+  <footer class="text-center py-4 text-secondary bg-light mt-auto">
+  <small>
+    <ul class="list-inline mb-0">
+      <li class="list-inline-item">© 慕课网（imooc.com）版权所有 | 津ICP备20000929号-1</li>
+      <li class="list-inline-item"><a href="https://coding.imooc.com/class/449.html" target="_blank">购买课程</a></li>
+      <li class="list-inline-item"><a href="http://docs.vikingship.xyz/" target="_blank">文档</a></li>
+      <li class="list-inline-item"><a href="http://api.vikingship.xyz/" target="_blank">API 在线调试</a></li>
+      <li class="list-inline-item"><a href="http://showcase.vikingship.xyz/" target="_blank">组件库演示</a></li>
+    </ul>
+  </small>
+</footer>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import GlobalHeader, { UserProps } from '@/components/GlobalHeader.vue';
-import ValidateForm from '@/components/ValidateForm.vue';
-import ValidateInput, { RuleProps } from '@/components/ValidateInput.vue';
+import { defineComponent, computed, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
+import axios from 'axios'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import GlobalHeader from './components/GlobalHeader.vue'
+import Loader from './components/Loader.vue'
+import createMessage from './components/createMessage'
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { GlobalDataProps } from './store'
 export default defineComponent({
   name: 'App',
   components: {
     GlobalHeader,
-    ValidateInput,
-    ValidateForm
+    Loader
   },
   setup() {
-    const user: UserProps = {
-      isLogin: true,
-      name: 'jack'
-    };
-    const emailVal = ref('');
-    const emailRules: RuleProps[] = [
-      { type: 'required', message: '电子邮箱地址不能为空' },
-      { type: 'email', message: '请输入正确的电子邮箱格式' }
-    ];
-
-    const passwordVal = ref('');
-    const passwordRules: RuleProps[] = [
-      {
-        type: 'required',
-        message: '密码不能为空'
+    const store = useStore<GlobalDataProps>()
+    const currentUser = computed(() => store.state.user)
+    const isLoading = computed(() => store.state.loading)
+    const error = computed(() => store.state.error)
+    watch(() => error.value.status, () => {
+      const { status, message } = error.value
+      if (status && message) {
+        createMessage(message, 'error')
       }
-    ];
-
-    const onFormSubmit = (result: boolean) => {
-      console.log(result);
-    };
-
+    })
     return {
-      user,
-      emailRules,
-      emailVal,
-      passwordRules,
-      passwordVal,
-      onFormSubmit
-    };
+      currentUser,
+      isLoading,
+      error
+    }
   }
-});
+})
 </script>
 
 <style>
+
 </style>
